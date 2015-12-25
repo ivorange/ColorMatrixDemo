@@ -9,4 +9,6 @@
 .editorconifg
 .mailmap
 .travis.yml
-
+*.iml
+.idea/
+build/
