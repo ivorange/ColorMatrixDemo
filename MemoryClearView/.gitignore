@@ -5,8 +5,8 @@
 .DS_Store
 /build
 /captures
-../.HEADER
-../.editorconifg
-../.mailmap
-../.travis.yml
+.HEADER
+.editorconifg
+.mailmap
+.travis.yml
 
