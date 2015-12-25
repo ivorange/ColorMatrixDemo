@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">MemoryClearView</string>
+    <string name="title_activity_layout_animation_test">LayoutAnimationTest</string>
+    <string name="title_activity_fast_blur">FastBlur</string>
+    <string name="title_activity_blur_view">BlurView</string>
+    <string name="title_activity_compute">ComputeActivity</string>
+</resources>
