@@ -4,4 +4,5 @@
     <string name="title_activity_fast_blur">FastBlur</string>
     <string name="title_activity_blur_view">BlurView</string>
     <string name="title_activity_compute">ComputeActivity</string>
+    <string name="title_activity_color">ColorActivity</string>
 </resources>
