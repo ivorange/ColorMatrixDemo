@@ -5,4 +5,6 @@
     <string name="title_activity_blur_view">BlurView</string>
     <string name="title_activity_compute">ComputeActivity</string>
     <string name="title_activity_color">ColorActivity</string>
+    <string name="title_activity_changer_blur_bitmap">ChangerBlurBitmap</string>
+    <string name="title_activity_blur_active">BlurActive</string>
 </resources>
