@@ -5,7 +5,7 @@
               android:layout_height="fill_parent"
               android:orientation="vertical" >
 
-    <com.mycolor.ColorView
+    <com.example.ivorange.memoryclearview.ColorView
         android:id="@+id/myColorView"
         android:layout_width="480dp"
         android:layout_height="180dp"/>

@@ -1,15 +1,29 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                tools:context=".MainActivity">
+
     <ImageView
-        android:layout_width="300dp"
-        android:src="@drawable/ttt"
+        android:id="@+id/picture"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/tuxiang"/>
+
+    <ImageView
         android:id="@+id/img_blur"
-        android:layout_gravity="center"
-        android:layout_height="300dp"/>
-</LinearLayout>
+        android:layout_width="200dp"
+        android:layout_height="150dp"
+        android:src="@drawable/square"
+        android:layout_centerInParent="true"
+        />
+    <TextView
+        android:id="@+id/text_view_time"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="vertical"
+        android:textColor="#ffffff"
+        android:layout_alignParentBottom="true"
+        android:background="#7f000000"/>
+</RelativeLayout>

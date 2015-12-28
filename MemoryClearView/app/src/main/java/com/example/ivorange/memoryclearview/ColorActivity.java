@@ -1,7 +1,15 @@
 package com.example.ivorange.memoryclearview;
 
 import android.app.Activity;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
+import android.renderscript.Allocation;
+import android.renderscript.Element;
+import android.renderscript.RenderScript;
+import android.renderscript.ScriptIntrinsicBlur;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -25,11 +33,8 @@ public class ColorActivity extends Activity implements View.OnClickListener{
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_color);
-
-
 		button = (Button)findViewById(R.id.Button);
 		button.setOnClickListener(this);
-
 		editTextArray = new EditText[20];
 		colorArray = new float[20];
 		for(int i = 0;i < 20;i++){
@@ -37,7 +42,53 @@ public class ColorActivity extends Activity implements View.OnClickListener{
 		}
 
 		colorView = (ColorView)findViewById(R.id.myColorView);
+//		colorView.setOnClickListener(new View.OnClickListener() {
+//			@Override
+//			public void onClick(View v) {
+//				Bitmap bitmap= BitmapFactory.decodeResource(getResources(),R.drawable.ttt);
+//				bitmap=blurBitmap(bitmap);
+//				colorView.setImageBitmap(bitmap);
+//				colorView.invalidate();
+//			}
+//		});
 	}
+
+	public Bitmap blurBitmap(Bitmap bitmap){
+
+		//Let's create an empty bitmap with the same size of the bitmap we want to blur
+		Bitmap outBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+
+		//Instantiate a new Renderscript
+		RenderScript rs = RenderScript.create(getApplicationContext());
+
+		//Create an Intrinsic Blur Script using the Renderscript
+		ScriptIntrinsicBlur blurScript = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
+
+		//Create the Allocations (in/out) with the Renderscript and the in/out bitmaps
+		Allocation allIn = Allocation.createFromBitmap(rs, bitmap);
+		Allocation allOut = Allocation.createFromBitmap(rs, outBitmap);
+
+		//Set the radius of the blur
+		blurScript.setRadius(25);
+
+		//Perform the Renderscript
+		blurScript.setInput(allIn);
+		blurScript.forEach(allOut);
+
+		//Copy the final bitmap created by the out Allocation to the outBitmap
+		allOut.copyTo(outBitmap);
+
+		//recycle the original bitmap
+		bitmap.recycle();
+
+		//After finishing everything, we destroy the Renderscript.
+		rs.destroy();
+
+		return outBitmap;
+
+
+	}
+
 	@Override
 	public void onClick(View v) {
 		for(int i = 0;i < 20;i++){

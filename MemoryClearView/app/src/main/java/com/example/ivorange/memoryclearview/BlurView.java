@@ -3,6 +3,12 @@ package com.example.ivorange.memoryclearview;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.renderscript.Allocation;
@@ -15,28 +21,22 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 public class BlurView extends AppCompatActivity {
 
-	private ImageView mImg;
-
+	private TextView mImg;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_blur_view);
-		mImg=(ImageView)findViewById(R.id.img_blur);
-		mImg.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Bitmap bitmap= BitmapFactory.decodeResource(getResources(),R.drawable.ttt);
-//				bitmap=blurBitmap(bitmap);
-//				mImg.setImageBitmap(bitmap);
+	}
 
-				bitmap=fastblurbyRenderScript(getApplicationContext(), bitmap,50);
-				mImg.setImageBitmap(bitmap);
-			}
-		});
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
 	}
 
 	public static Bitmap fastblurbyRenderScript(Context context, Bitmap sentBitmap, int radius) {
@@ -57,56 +57,125 @@ public class BlurView extends AppCompatActivity {
 				// TODO: handle exception
 				bitmap = fastblurbyCaluate(context, sentBitmap, radius);
 			}
-
 			return bitmap;
 		}
 		return null;
 	}
 
+	private void blur(Bitmap bmp, TextView textViewBlur) {
+		long statTime = System.currentTimeMillis();
+		// Radius out of range (0 < r <= 25).
+		float radio = 20;
+		Bitmap mask = Bitmap.createBitmap(textViewBlur.getMeasuredWidth(),
+				textViewBlur.getMeasuredHeight(),
+				Bitmap.Config.ARGB_8888);
+
+		Canvas canvas = new Canvas(mask);
+		canvas.translate(-textViewBlur.getLeft(),-textViewBlur.getTop());
+		canvas.drawBitmap(bmp,0,0,null);
+		//核心代码--------------------------------------
+		RenderScript rs = RenderScript.create(this);
+		Allocation allocation  = Allocation.createFromBitmap(rs,mask);
+		ScriptIntrinsicBlur blur = ScriptIntrinsicBlur.create(rs,allocation.getElement());
+		blur.setInput(allocation);
+		blur.setRadius(radio);
+		blur.forEach(allocation);
+		allocation.copyTo(mask);
+		textViewBlur.setBackground(new BitmapDrawable(getResources(), mask));
+		rs.destroy();
+	}
+
+//	private void blur(Bitmap bkg, View view) {
+//		long startMs = System.currentTimeMillis();
+//		float scaleFactor = 8;
+//		float radius = 2;
+//
+//		Bitmap overlay = Bitmap.createBitmap((int) (view.getMeasuredWidth()/scaleFactor),
+//				(int) (view.getMeasuredHeight()/scaleFactor), Bitmap.Config.ARGB_8888);
+//		Canvas canvas = new Canvas(overlay);
+//		canvas.translate(-view.getLeft()/scaleFactor, -view.getTop()/scaleFactor);
+//		canvas.scale(1 / scaleFactor, 1 / scaleFactor);
+//		Paint paint = new Paint();
+//		paint.setFlags(Paint.FILTER_BITMAP_FLAG);
+//		canvas.drawBitmap(bkg, 0, 0, paint);
+//
+//		overlay = FastBlur.doBlur(overlay, (int) radius, true);
+//		view.setBackground(new BitmapDrawable(getResources(), overlay));
+//	}
+
+
 	public Bitmap blurBitmap(Bitmap bitmap){
 
-		//Let's create an empty bitmap with the same size of the bitmap we want to blur
 		Bitmap outBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
-
-		//Instantiate a new Renderscript
 		RenderScript rs = RenderScript.create(getApplicationContext());
-
-		//Create an Intrinsic Blur Script using the Renderscript
 		ScriptIntrinsicBlur blurScript = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
-
-		//Create the Allocations (in/out) with the Renderscript and the in/out bitmaps
 		Allocation allIn = Allocation.createFromBitmap(rs, bitmap);
 		Allocation allOut = Allocation.createFromBitmap(rs, outBitmap);
-
-		//Set the radius of the blur
 		blurScript.setRadius(25);
-
-		//Perform the Renderscript
 		blurScript.setInput(allIn);
 		blurScript.forEach(allOut);
-
-		//Copy the final bitmap created by the out Allocation to the outBitmap
 		allOut.copyTo(outBitmap);
-
-		//recycle the original bitmap
 		bitmap.recycle();
-
-		//After finishing everything, we destroy the Renderscript.
 		rs.destroy();
-
 		return outBitmap;
-
-
 	}
+
+	public static Bitmap ice(Bitmap bmp) {
+
+		int width = bmp.getWidth();
+		int height = bmp.getHeight();
+
+		int dst[] = new int[width * height];
+		bmp.getPixels(dst, 0, width, 0, 0, width, height);
+
+		int R, G, B, pixel;
+		int pos, pixColor;
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				pos = y * width + x;
+				pixColor = dst[pos]; // 获取图片当前点的像素值
+
+				R = Color.red(pixColor); // 获取RGB三原色
+				G = Color.green(pixColor);
+				B = Color.blue(pixColor);
+
+				pixel = R - G - B;
+				pixel = pixel * 3 / 2;
+				if (pixel < 0)
+					pixel = -pixel;
+				if (pixel > 255)
+					pixel = 255;
+				R = pixel; // 计算后重置R值，以下类同
+
+				pixel = G - B - R;
+				pixel = pixel * 3 / 2;
+				if (pixel < 0)
+					pixel = -pixel;
+				if (pixel > 255)
+					pixel = 255;
+				G = pixel;
+
+				pixel = B - R - G;
+				pixel = pixel * 3 / 2;
+				if (pixel < 0)
+					pixel = -pixel;
+				if (pixel > 255)
+					pixel = 255;
+				B = pixel;
+				dst[pos] = Color.rgb(R, G, B); // 重置当前点的像素值
+			} // x
+		} // y
+		Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+		bitmap.setPixels(dst, 0, width, 0, 0, width, height);
+		return bitmap;
+	} // end of Ice[/mw_shl_code]
 
 	public static Bitmap fastblurbyCaluate(Context context, Bitmap sentBitmap, int radius) {
 
 		Bitmap bitmap = sentBitmap.copy(sentBitmap.getConfig(), true);
-
 		if (radius < 1) {
 			return (null);
 		}
-
 		int w = bitmap.getWidth();
 		int h = bitmap.getHeight();
 

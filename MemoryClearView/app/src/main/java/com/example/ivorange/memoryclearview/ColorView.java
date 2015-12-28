@@ -26,6 +26,8 @@ public class ColorView extends ImageView {
 		bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ttt);
 		invalidate();
 	}
+
+
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
@@ -51,4 +53,5 @@ public class ColorView extends ImageView {
 	public void setBitmap(Bitmap bitmap){
 		this.bitmap = bitmap;
 	}
+
 }
